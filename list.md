@@ -23,7 +23,7 @@
  * jQuery 就不作说明了
  * 示例
  */
-js.use('jquery', function(){
+js.use('jquery', function(global){
   // code...
 });
 
@@ -42,28 +42,13 @@ js.use('jquery', function(){
  * Glide.js v3.3.0
  * (c) 2013-2019 Jędrzej Chałubek <jedrzej.chalubek@gmail.com>
  * Released under the MIT License.
+ * 轮播图插件
  */
 
 /**
- * 轮播图插件
- * 示例
+ * 完整模式 (官方默认使用方式)
  */
-js.use('glide', function(){
-  // 精简模式
-  $('.glide').glide({
-    // 是否有左右切换按钮
-    arrows: true,
-    
-    // 是否有点状导航
-    bullets: true,
-    
-    // 是否循环播放 (rewind 属性的别名, 只有精简模式下有效)
-    // 在精简模式下, 如果不指定 rewind 和 loop, 循环与否会根据轮播类型自动决定
-    // 轮播类型为 carousel 则循环, 轮播类型为 slider 则不循环
-    loop: true,
-  });
-  
-  // 完整模式 (官方默认使用方式)
+LazyScript.load('glide', function(global){
   new Glide('.glide', {
     /**
      * 轮播类型
@@ -120,6 +105,24 @@ js.use('glide', function(){
      */
   }).mount();
 });
+
+/**
+ * 精简模式
+ */
+LazyScript.load('glide.package', function(global) {
+  $('.glide').glide({
+    // 是否有左右切换按钮
+    arrows: true,
+    
+    // 是否有点状导航
+    bullets: true,
+    
+    // 是否循环播放 (rewind 属性的别名, 只有精简模式下有效)
+    // 在精简模式下, 如果不指定 rewind 和 loop, 循环与否会根据轮播类型自动决定
+    // 轮播类型为 carousel 则循环, 轮播类型为 slider 则不循环
+    loop: true,
+  });
+})
 
 ```
 
@@ -182,7 +185,7 @@ js.use('glide', function(){
 /**
  * 示例
  */
-js.use('lightbox', function(){
+LazyScript.load('lightbox', function(global){
   // lightbox 全局设置
   lightbox.option({
     fadeDuration: 300,
@@ -209,28 +212,7 @@ js.use('lightbox', function(){
 
 
 
-### 4. Sticky
-
-**主页:**  https://github.com/wilddeer/stickyfill
-
-```js
-/*!
- * version: 2.1.0
- */
-
-/**
- * position: sticky 的 pollyfill
- * 示例
- */
-js.use('sticky', function(){
-  Stickyfill.add($('.sticky'));
-});
-
-```
-
-
-
-### 5. Lazyload
+### 4. Lazyload
 
 ```js
 /*!
@@ -241,7 +223,7 @@ js.use('sticky', function(){
 /**
  * 示例
  */
-js.use('lazyload', function(){
+LazyScript.load('lazyload', function(global){
   /**
    * 选择器选中的可以是 img, 也可以是其他元素, 如 div (图片将被添加为背景图片)
    */
@@ -314,7 +296,7 @@ js.use('lazyload', function(){
 
 
 
-### 6. Scollspy
+### 5. Scollspy
 
 ```js
 /*!
@@ -332,7 +314,7 @@ js.use('lazyload', function(){
  * 基于以上划分, scrollspy 相应的将滚动监听分解为了三个函数
  * 三个函数可连写
  */
-js.use('scrollspy', function(){
+LazyScript.load('scrollspy', function(global){
   /**
    * 连写示例
    * 如下, 一个最常用的应用场景:
@@ -420,7 +402,7 @@ js.use('scrollspy', function(){
 
 
 
-### 7. Tabs
+### 6. Tabs
 
 ```js
 /*!
@@ -431,7 +413,7 @@ js.use('scrollspy', function(){
 /**
  * 示例
  */
-js.use('tabs', function(){
+LazyScript.load('tabs', function(global){
   // T 大写
   var tabs = Tabs().connect(
     // 指定标签头
@@ -473,7 +455,7 @@ js.use('tabs', function(){
 
 
 
-###8. matchMedia
+### 7. matchMedia
 
 **文档**: [matchMedia](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/matchMedia)
 
@@ -506,7 +488,7 @@ matchMedia('(min-width:992px)').addListener(function(){
 
 
 
-### 9. Inching
+### 8. InchingTo
 
 ```js
 /*!
@@ -515,7 +497,7 @@ matchMedia('(min-width:992px)').addListener(function(){
  */
 
 // 示例
-js.use('inching', function(){
+LazyScript.load('inching', function(global){
   /**
    * 直接使用
    *
@@ -591,7 +573,7 @@ js.use('inching', function(){
 
 
 
-### 10. Highlight
+### 9. Highlight
 
 ```js
 /*!
@@ -600,7 +582,7 @@ js.use('inching', function(){
  */
 
 // 示例
-js.use('highlight', function(){
+LazyScript.load('highlight', function(global){
   $('.js-w-navmenu').highlight({
     /**
      * 指定为匹配项添加的类
@@ -648,4 +630,23 @@ js.use('highlight', function(){
 ```
 
 
+
+### __. Sticky ( 弃用 )
+
+**主页:**  https://github.com/wilddeer/stickyfill
+
+```js
+/*!
+ * version: 2.1.0
+ */
+
+/**
+ * position: sticky 的 pollyfill
+ * 示例
+ */
+LazyScript.load('sticky', function(global){
+  Stickyfill.add($('.sticky'));
+});
+
+```
 
