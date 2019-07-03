@@ -1,11 +1,10 @@
 /**
  * 常用 js 工具
  */
-;(function(root, factory) {
+LazyScript.load('jquery', function(global){
+  "use strict";
 
-  root.highlight = factory(root.jQuery);
-
-})(window, function($) {
+  var $ = global.$ || global.jQuery;
 
   // 高亮菜单
   $.fn.highlight = function(opt) {
@@ -72,7 +71,7 @@
     });
   };
 
-  return function(selector, opt) {
+  global.highlight = function(selector, opt) {
     $(selector).highlight(opt);
   };
 });

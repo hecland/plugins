@@ -3,8 +3,11 @@
  * v0.3.0
  * 需要 jQuery.js
  */
-ls.load('jquery', function(global) {
+LazyScript.load('jquery', function(global){
+  "use strict";
+
   var $ = global.$ || global.jQuery;
+  
   var html = document.documentElement;
   var body = document.body;
   var docEl = html.scrollTop != null ? html : body;

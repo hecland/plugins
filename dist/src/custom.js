@@ -1,3 +1,0 @@
-LazyScript.load(function(global) {
-  // ...
-});

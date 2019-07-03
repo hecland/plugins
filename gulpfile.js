@@ -27,10 +27,10 @@ function customjs() {
 
 function otherjs() {
   return src(['node_modules/underscore/underscore.js', 'src/*.js', '!src/_*.js', '!src/LazyScript.js', '!src/jquery.preload.js'])
-  .pipe(dest('dist/src/'))
+  .pipe(dest('dist/plugins/'))
   .pipe(uglify())
   .pipe(rename({extname: '.min.js'}))
-  .pipe(dest('dist/src/'));
+  .pipe(dest('dist/plugins/'));
 }
 
 exports.default = parallel(LazyScript, LazyScriptJquery, customjs, otherjs);

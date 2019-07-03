@@ -1,7 +1,7 @@
 /*!
  * Lazy Load - JavaScript plugin for lazy loading images
  */
-js.use('polyfill:IntersectionObserver', function(global){
+LazyScript.load('polyfill:IntersectionObserver', function (global) {
   "use strict";
 
   var $ = global.$ || global.jQuery;

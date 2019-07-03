@@ -1,11 +1,11 @@
 /*!
  * 滚动监听
  */
-;(function(root, factory) {
+LazyScript.load('jquery', 'underscore', function(global){
+  "use strict";
 
-  root.scrollspy = factory(root.jQuery, root._);
-
-})(window, function($, _) {
+  var $ = global.$;
+  var _ = global._;
 
   function Scrollspy(selector, callback) {
     // 被监听的容器
@@ -207,5 +207,5 @@
     return Scrollspy(this, callback);
   }
 
-  return Scrollspy;
+  global.Scrollspy = Scrollspy;
 });

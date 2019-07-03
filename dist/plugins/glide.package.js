@@ -1,9 +1,9 @@
-ls.load('jquery', 'glide', function(global){
+LazyScript.load('jquery', 'glide', function(global){
   "use strict";
 
   var $ = global.$ || global.jQuery;
   var Glide = global.Glide;
-  
+
   $.extend(Glide.prototype, {
     isStart: function() {
       return this._c.Run.isStart();
