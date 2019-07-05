@@ -1,1 +1,0 @@
-LazyScript.preload('jquery');

@@ -12,11 +12,9 @@ function LazyScript() {
 }
 
 function LazyScriptJquery() {
-  return src(['node_modules/jquery/dist/jquery.js', 'src/LazyScript.js', 'src/jquery.preload.js'])
-    .pipe(concat('lazyscript.jquery.js'))
-    .pipe(dest('dist/'))
+  return src(['node_modules/jquery/dist/jquery.js', 'src/LazyScript.js'])
+    .pipe(concat('lazyscript.jquery.min.js'))
     .pipe(uglify())
-    .pipe(rename('lazyscript.jquery.min.js'))
     .pipe(dest('dist/'));
 }
 
@@ -26,7 +24,7 @@ function customjs() {
 }
 
 function otherjs() {
-  return src(['node_modules/underscore/underscore.js', 'src/*.js', '!src/_*.js', '!src/LazyScript.js', '!src/jquery.preload.js'])
+  return src(['node_modules/underscore/underscore.js', 'src/*.js', '!src/_*.js', '!src/LazyScript.js'])
   .pipe(dest('dist/plugins/'))
   .pipe(uglify())
   .pipe(rename({extname: '.min.js'}))
