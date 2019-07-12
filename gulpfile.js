@@ -1,34 +1,11 @@
-const { src, dest, parallel } = require('gulp');
+const { src, dest } = require('gulp');
 const uglify = require('gulp-uglify');
-const concat = require('gulp-concat');
 const rename = require('gulp-rename');
 
-function LazyScript() {
-  return src(['src/LazyScript.js'])
-    .pipe(dest('dist/'))
-    .pipe(uglify())
-    .pipe(rename('lazyscript.min.js'))
-    .pipe(dest('dist/'));
-}
-
-function LazyScriptJquery() {
-  return src(['node_modules/jquery/dist/jquery.js', 'src/LazyScript.js'])
-    .pipe(concat('lazyscript.jquery.min.js'))
-    .pipe(uglify())
-    .pipe(dest('dist/'));
-}
-
-function customjs() {
-  return src(['src/custom.js'])
-    .pipe(dest('dist/'));
-}
-
-function otherjs() {
-  return src(['node_modules/underscore/underscore.js', 'src/*.js', '!src/_*.js', '!src/LazyScript.js'])
+exports.default = function() {
+  return src(['node_modules/underscore/underscore.js', 'src/*.js', '!src/_*.js'])
   .pipe(dest('dist/plugins/'))
   .pipe(uglify())
   .pipe(rename({extname: '.min.js'}))
   .pipe(dest('dist/plugins/'));
 }
-
-exports.default = parallel(LazyScript, LazyScriptJquery, customjs, otherjs);

@@ -1,5 +1,5 @@
 {
-  "name": "mainjs",
+  "name": "plugins",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -14,15 +14,12 @@
   "license": "ISC",
   "devDependencies": {
     "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
     "gulp-rename": "^1.4.0",
     "gulp-uglify": "^3.0.2"
   },
   "dependencies": {
     "jquery": "^3.4.1",
     "jquery-validation": "^1.19.0",
-    "requirejs": "^2.3.6",
-    "seajs": "^3.0.3",
     "underscore": "^1.9.1"
   }
 }
