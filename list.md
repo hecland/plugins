@@ -23,7 +23,7 @@
  * jQuery 就不作说明了
  * 示例
  */
-js.use('jquery', function(global){
+LazyScript.load('jquery', function(global){
   // code...
 });
 
