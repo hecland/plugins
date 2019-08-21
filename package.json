@@ -20,6 +20,7 @@
   "dependencies": {
     "jquery": "^3.4.1",
     "jquery-validation": "^1.19.0",
+    "lightbox2": "^2.11.1",
     "underscore": "^1.9.1"
   }
 }
