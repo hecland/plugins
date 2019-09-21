@@ -21,6 +21,7 @@
     "jquery": "^3.4.1",
     "jquery-validation": "^1.19.0",
     "lightbox2": "^2.11.1",
+    "tiny-slider": "^2.9.2",
     "underscore": "^1.9.1"
   }
 }
