@@ -31,7 +31,7 @@ LazyScript.load('jquery', function(global){
 
 
 
-### 2. Glide
+### 2. Glide（弃用）
 
 **主页:** https://glidejs.com/
 
@@ -627,6 +627,145 @@ LazyScript.load('highlight', function(global){
     },   
   });
 });
+```
+
+
+
+### 10. Tiny Slider 2
+
+**主页 / API**：https://github.com/ganlanyuan/tiny-slider#tiny-slider-2
+
+**示例页**： http://ganlanyuan.github.io/tiny-slider/demo/
+
+```javascript
+/*!
+ * Version 2.9.2
+ * 轮播图插件，Owl Carousel 的后续版本，改进了缩略图导航等功能
+ */
+
+// 示例
+LazyScript.load('tiny-slider', function(global) {
+  var slider = tns({
+    /**
+     * 轮播图片的容器
+     *
+     * 类型：DOM 元素 | 选择器字符串
+     * 默认值：'.slider'
+     */
+    container: '.my-slider',
+    
+    /**
+     * 每页显示的图片数
+     *
+     * 类型：正整数
+     * 默认值：1
+     */
+    items: 1,
+    
+    /**
+     * 每次切换多少张图片
+     *
+     * 类型：正数 | "page"
+     * 默认值：1
+     */
+    slideBy: 1,
+    
+    /**
+     * 是否自动播放
+     *
+     * 类型：Boolean (true/false)
+     * 默认值：false
+     */
+    autoplay: true,
+    
+    /**
+     * 自动播放的时间间隔
+     *
+     * 类型：Boolean (true/false)
+     * 默认值：false
+     */
+    autoplayTimeout: 5000,
+    
+    /**
+     * 鼠标移入时是否暂停自动播放
+     *
+     * 类型：Boolean (true/false)
+     * 默认值：false
+     */
+    autoplayHoverPause: true,
+    
+    /**
+     * 是否循环播放
+     *
+     * 类型：Boolean (true/false)
+     * 默认值：true
+     */
+    loop: true,
+    
+    /**
+     * 允许鼠标拖动
+     *
+     * 类型：Boolean (true/false)
+     * 默认值：false
+     */
+    mouseDrag: true,
+    
+    /**
+     * 图片间距，单位为 px
+     *
+     * 类型：正整数 | 0
+     * 默认值：0
+     */
+    gutter: 10,
+    
+    /**
+     * 两侧留白，单位为 px
+     *
+     * 类型：正整数 | 0
+     * 默认值：0
+     */
+    edgePadding: 20,
+    
+    /**
+     * 响应式设计
+     *
+     * 类型：Object
+     * 默认值：
+     */
+    responsive: {
+      640: {
+        edgePadding: 20,
+        gutter: 20,
+        items: 2
+      },
+      700: {
+        gutter: 30
+      },
+      900: {
+        items: 3
+      }
+    },
+ 
+    /**
+     * 启用懒加载
+     * 使用自定义属性 data-src 存放图片网址，必须设置
+     *
+     * 类型：Boolean (true/false)
+     * 默认值：false
+     */
+    lazyload: true,
+    
+    /**
+     * 用于标记需要懒加载的图片
+     *
+     * 类型：选择器字符串
+     * 默认值：'.tns-lazy-img'
+     */
+    lazyloadSelector: '.lazyload',
+    
+    /* 更多设置见主页和示例页 */
+  });
+})
 ```
 
 
