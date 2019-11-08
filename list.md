@@ -497,7 +497,7 @@ matchMedia('(min-width:992px)').addListener(function(){
  */
 
 // 示例
-LazyScript.load('inching', function(global){
+LazyScript.load('inchingTo', function(global){
   /**
    * 直接使用
    *

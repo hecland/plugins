@@ -60,8 +60,8 @@ LazyScript.load('jquery', 'glide', function(global){
       }
       var $arrows = $arrowsWrapper.children();
 
-      $arrows.eq(0).addClass('glide__arrow--left').text('prev').attr('data-glide-dir', '<');
-      $arrows.eq(1).addClass('glide__arrow--right').text('next').attr('data-glide-dir', '>');
+      $arrows.eq(0).addClass('glide__arrow--left').attr('data-glide-dir', '<');
+      $arrows.eq(1).addClass('glide__arrow--right').attr('data-glide-dir', '>');
     }
 
     // 补全点状导航
