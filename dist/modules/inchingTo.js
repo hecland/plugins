@@ -65,7 +65,7 @@ LazyScript.load('jquery', function(global){
     if (!node || node.tagName == 'BODY') return window;
     var parent = node.parentNode, css;
     while(true) {
-      if (parent[0].tagName == 'BODY') break;
+      if (parent.tagName == 'BODY') break;
       css = window.getComputedStyle(parent);
       if (css.overflowY == 'scroll' || css.overflowY == 'auto') {
         return parent;
