@@ -37,27 +37,15 @@ LazyScript.load('jquery', 'underscore', function(global){
       options = {
         container: options
       }
-
-      _$container = $(options);
-
     } else if (! isObject(options)) {
       options = {}
-
-      // // 提取容器信息
-      // if (options.container) {
-      //   _$container = $(options.container);
-      // }
-
-      // if (options.method) {
-      //   _method = options.method
-      // }
     }
 
     // 被监听的容器
     var _$container = $(options.container || window);
 
     // 确保窗口有效
-    if (! _$container.length || !(_$container[0] === window || _$container[0] instanceof HTMLElement)) {
+    if (!_$container.length || !(_$container[0] === window || _$container[0] instanceof HTMLElement)) {
       _$container = $(window);
     }
 
@@ -67,17 +55,10 @@ LazyScript.load('jquery', 'underscore', function(global){
     var _getContainerRect = (function() {
       if (_isWindow) {
         return function() {
-          var width = _$container.width();
-          var height = _$container.height();
           return {
-            x: 0,
-            y: 0,
-            width: width,
-            height: height,
+            height: window.innerHeight,
             top: 0,
-            right: width,
-            bottom: height,
-            left: 0,
+            bottom: window.innerHeight,
           }
         }
       }
@@ -88,66 +69,40 @@ LazyScript.load('jquery', 'underscore', function(global){
 
     // 设置检测器
     var _sensor = {
-      position: .2, // 检测器位置（相对于容器顶部）
-      unit: '%',    // 检测器位置单位，'px' 或 '%'
+      pos: .2,    // 检测器偏移值（相对于容器顶部）
+      unit: '%',  // 检测器偏移值单位，'px' 或 '%'
       current: null,
     };
 
-    // 从 options 提取检测线位置值，以及确定值的单位
-    if (options.offset) {
-      _sensor.position = parseFloat(options.offset)
-      if (isNaN(_sensor.position)) {
-        _sensor.position = .2
+    // 从 options 提取检测线偏移值，以及确定值的单位
+    if (options.offset && !isNaN(parseFloat(options.offset))) {
+      _sensor.offset = parseFloat(options.offset)
+      if (/%$/.test(options.offset)) {
+        _sensor.pos /= 100
         _sensor.unit = '%'
       } else {
-        if (options.offset.substr(-1) === '%') {
-          _sensor.position /= 100
-          _sensor.unit = '%'
-        } else {
-          _sensor.position = Math.round(_sensor.position)
-          _sensor.unit = 'px'
-        }
+        _sensor.pos = Math.round(_sensor.pos)
+        _sensor.unit = 'px'
       }
     }
 
-    // 根据滚动窗口、检测线位置值单位、检测线位置值正负三个特征，确定获取检测线位置的方法
-    _sensor.getPosition = (function() {
-      if (_sensor.unit === '%') {
-        if (_sensor.position >= 0) {
-          return function() {
-            var containerRect = _getContainerRect();
-            return containerRect.top + containerRect.height * this.position
-          }
-        } else {
-          return function() {
-            var containerRect = _getContainerRect();
-            return containerRect.top + containerRect.height * (1 - this.position)
-          }
-        }
-      } else {
-        if (_sensor.position >= 0) {
-          return function() {
-            var containerRect = _getContainerRect();
-            return containerRect.top + this.position
-          }
-        } else {
-          return function() {
-            var containerRect = _getContainerRect();
-            return containerRect.top + containerRect.height - this.position
-          }
-        }
-      }
-    })();
+    // 根据滚动窗口，检测器偏移值，以及检测器偏移值单位，获取检测器与容器顶部距离（px）
+    _sensor.getPosition = function() {
+      var rect = _getContainerRect();
+      return (this.pos >= 0 ? rect.top : rect.bottom) + (this.unit === '%' ? rect.height : 1) * this.pos
+    };
 
     // 检测一个元素与容器的交叉百分比
     function _getIntersection(anchor) {
       var rect = anchor.getBoundingClientRect();
-      var containerRect = _getContainerRect();
-      if (rect.bottom <= containerRect.top || rect.top >= containerRect.bottom) {
+      var cRect = _getContainerRect();
+
+      // 在容器外
+      if (rect.bottom <= cRect.top || rect.top >= cRect.bottom) {
         return 0
       }
-      var top = Math.max(rect.top, containerRect.top);
-      var bottom = Math.min(rect.bottom, containerRect.bottom);
+      var top = Math.max(rect.top, cRect.top);
+      var bottom = Math.min(rect.bottom, cRect.bottom);
       return (bottom - top) / rect.height
     };
 
@@ -176,7 +131,7 @@ LazyScript.load('jquery', 'underscore', function(global){
         for (var index = 0, len = _$anchors.length; index < len; index++) {
           var anchor = _$anchors[index];
           var rect = anchor.getBoundingClientRect();
-          if (threshold >= rect.top && threshold <= rect.top + rect.height) {
+          if (threshold >= rect.top && threshold <= rect.bottom) {
             return anchor;
           }
         }
@@ -303,7 +258,7 @@ LazyScript.load('jquery', 'underscore', function(global){
       // 查看检测器配置
       sensor: function() {
         return {
-          position: _sensor.position,
+          position: _sensor.pos,
           unit: _sensor.unit,
           current: _sensor.current,
         }
