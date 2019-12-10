@@ -7,204 +7,195 @@ LazyScript.load('jquery', 'underscore', function(global){
   var $ = global.$;
   var _ = global._;
 
-  function Scrollspy(selector, callback) {
+  function isObject(val) {
+    return val != null && typeof val === 'object' && Array.isArray(val) === false;
+  }
+
+  function isSelector(val) {
+    return val && (typeof val === 'string' || val instanceof HTMLElement || val instanceof $)
+  }
+
+  function isClassName(val) {
+    return typeof val === 'string' && val.trim().length
+  }
+
+  function Scrollspy(options) {
     // 被监听的容器
-    var $scrollParent = $(selector);
+    var _$container = $(window);
 
-    // 判断被监听容器是否窗口
-    var isWindow = $.isWindow($scrollParent[0]);
+    // 感测线位置（相对于容器顶部）
+    var _sensor = .2;
 
-    var scrollCallback = null,
-        options = null,
-        $spyTargets = null,
-        feedbackTargets = null,
-        calcThreshold = null,
-        lastSpyTarget = null;
+    // 感测线位置数据的单位，'px' 或 '%'
+    var _unit = '%';
 
-    var spy = {
-      // 初始化
-      init: function(callback) {
+    if (isSelector(options) || options === document || options === window) {
+
+      _$container = $(options);
+
+    }
+
+    // 从 options 提取设置值
+    else if (isObject(options)) {
+
+      // 提取容器信息
+      if (options.container) {
+        _$container = $(options.container);
+      }
+
+      // 提取感测线位置值，以及确定值的单位
+      if (options.sensor) {
+        _sensor = parseFloat(options.sensor)
+        if (isNaN(_sensor)) {
+          _sensor = .2
+          _unit = '%'
+        } else {
+          if (options.sensor.substr(-1) === '%') {
+            _unit = '%'
+            _sensor /= 100
+          } else {
+            _unit = 'px'
+            _sensor = Math.round(_sensor)
+          }
+        }
+      }
+    }
+
+    // 确保窗口有效
+    if (! _$container.length || !(_$container[0] === window || _$container[0] instanceof HTMLElement)) {
+      _$container = $(window);
+    }
+
+    var _isWindow = _$container[0] === window;
+
+    // 根据滚动窗口、感测线位置值单位、感测线位置值正负三个特征，确定获取感测线位置的方法
+    var _getSensorOffsetTop = (function() {
+      if (_isWindow) {
+        if (_unit === '%') {
+          if (_sensor < 0) {
+            return function() {
+              return _$container.height() * (1 - _sensor)
+            }
+          } else {
+            return function() {
+              return _$container.height() * _sensor
+            }
+          }
+        } else {
+          if (_sensor < 0) {
+            return function() {
+              return _$container.height() - _sensor
+            }
+          } else {
+            return function() {
+              return _sensor
+            }
+          }
+        }
+      } else {
+        if (_unit === '%') {
+          if (_sensor < 0) {
+            return function() {
+              return _$container[0].getBoundingClientRect().top + _$container.height() * (1 - _sensor)
+            }
+          } else {
+            return function() {
+              return _$container[0].getBoundingClientRect().top + _$container.height() * _sensor
+            }
+          }
+        } else {
+          if (_sensor < 0) {
+            return function() {
+              return _$container[0].getBoundingClientRect().top + _$container.height() - _sensor
+            }
+          } else {
+            return function() {
+              return _$container[0].getBoundingClientRect().top + _sensor
+            }
+          }
+        }
+      }
+    })();
+
+    var _$anchors = $();
+    var _$targets = $();
+
+    return {
+      feedback: function(targets, active) {
         this.stop();
 
-        scrollCallback = null;
-        options = null;
-        $spyTargets = null;
-        feedbackTargets = null;
-        calcThreshold = null;
-        lastSpyTarget = null;
+        _$targets = $(targets);
+    
+        if (! _$targets.is('a[href^="#"]')) {
+          _$targets = _$targets.find('a[href^="#"]');
+        }
+        _$targets = _$targets.filter(function(){
+          return $(this).is('a[href^="#"]')
+        })
 
-        if (typeof callback === 'function') {
-          scrollCallback === callback;
+        if (! _$targets.length) {
+          return
         }
 
-        this.start();
+        active = isClassName(active) ? active : 'is-active';
 
-        return this;
-      },
+        _$anchors = $();
+        _$targets.each(function() {
+          var feedbackTarget = this;
+          var anchor = getAnchor(this);
+          if (anchor instanceof HTMLElement) {
+            _$anchors = _$anchors.add(anchor);
+            $(anchor).on('strike', function() {
+              _$targets.removeClass(active)
+              $(feedbackTarget).addClass(active)
+            })
+          }
+        })
 
-      // 监听节点
-      spy: function(selector, threshold, callback) {
-        options = options || new Object(null);
-        options.threshold = threshold || 0;
-        if (typeof callback === 'function') {
-          options.callback = callback;
-        } else if (typeof options.callback !== 'function') {
-          options.callback = null;
+        if (_$anchors.length) {
+          this.start();
         }
 
-        // 获取阈值
-        // 阈值是指被监听窗口上边沿距窗口顶部距离 + options.threshold
-        // 阈值用于计算一个被监听元素是否为当前元素
-        if (isWindow) {
-          calcThreshold = function() {
-            return options.threshold;
-          };
-        } else {
-          calcThreshold = function(){
-            return $scrollParent[0].getBoundingClientRect().top + options.threshold;
-          };
+        function getAnchor(feedbackTarget) {
+          var target = feedbackTarget.getAttribute('href');
+          return _isWindow ? $(target)[0] : _$container.find(target)[0]
         }
-
-        // 获取被监听元素
-        if (!isWindow && typeof selector === 'string') {
-          $spyTargets = $scrollParent.find(selector);
-        } else {
-          $spyTargets = $(selector);
-        }
-        $spyTargets = $spyTargets.filter(function() {
-          return this instanceof HTMLElement;
-        });
-
-        // 当前进入窗口的元素
-        lastSpyTarget = null;
-        this.update();
-
-        return this;
-      },
-
-      // 连接一组接收监听反馈的节点
-      feedback: function(selector, isRelated, callback) {
-        var $targets = $(selector).filter(function() {
-          return this instanceof HTMLElement;
-        });
-        if (!$targets.length) return;
-
-        // 判断是否锚点链接
-        function isAnchor(el) {
-          return el instanceof HTMLElement && 
-            el.tagName === 'A' && 
-            el.hash && 
-            el.hostname === window.location.hostname && 
-            el.pathname === window.location.pathname;
-        }
-        
-        // 指定如何判断被监听节点与接收反馈的节点是相关的
-        if (typeof isRelated !== 'function') {
-          isRelated = function(el1, el2) {
-            return el1.id && isAnchor(el2) && el2.hash === '#'+el1.id;
-          };
-        }
-
-        // 指定一个回调函数, 当接收到反馈时执行该函数
-        if (typeof callback !== 'function') {
-          callback = function($toBeActive, $actived) {
-            if ($actived) $actived.removeClass('is-active');
-            if ($toBeActive) $toBeActive.addClass('is-active');
-          };
-        }
-
-        // 关联被监听节点与反馈接收节点
-        var connected = [];
-        $spyTargets.each(function(i, el) {
-          $targets.each(function(j, el2){
-            if (isRelated(el, el2)) {
-              if (!connected[i]) connected[i] = $();
-              connected[i] = connected[i].add(el2);
-            }
-          });
-        });
-
-        feedbackTargets = feedbackTargets || []
-        feedbackTargets.push({
-          elements: connected,
-          callback: callback,
-        });
-
-        connected = null;
-        isRelated = null;
-        callback = null;
-
-        lastSpyTarget = null;
-        this.update();
-
-        return this;
       },
 
       // 发生滚动时计算元素位置并更新监听结果
       update: function() {
-        if (typeof scrollCallback === 'function') {
-          scrollCallback.call($scrollParent[0]);
-        }
-
-        if ($spyTargets) {
-          // 获取阈值
-          var threshold = calcThreshold();
-          var current, currentTop = 0;
-
-          // 依次计算每个被监听元素的位置
-          // 当被监听窗口上边沿位于某一元素内部时, 被认为
-          $spyTargets.each(function(index) {
-            var top = this.getBoundingClientRect().top;
-            var bottom = top + $(this).outerHeight();
-            if (top <= threshold && bottom >= threshold && (current == null || currentTop < top)) {
-              current = this;
-              currentTop = top;
-            }
-          });
-
-          // 更新当前元素
-          if (current && lastSpyTarget != current) {
-            if (options.callback) {
-              options.callback(current, lastSpyTarget);
-            }
-            if (feedbackTargets && feedbackTargets.length) {
-              var index = $spyTargets.index(current),
-                  currentIndex = $spyTargets.index(lastSpyTarget),
-                  fbEls;
-              for (var i = 0; i < feedbackTargets.length; i++) {
-                fbEls = feedbackTargets[i].elements;
-                if (fbEls[index]) {
-                  feedbackTargets[i].callback.call(this, fbEls[index], fbEls[currentIndex] || null);
-                }
-              }
-            }
+        var threshold = _getSensorOffsetTop();
+        for (var index = 0, len = _$anchors.length; index < len; index++) {
+          var anchor = _$anchors[index];
+          var rect = anchor.getBoundingClientRect();
+          if (threshold >= rect.top && threshold <= rect.top + rect.height) {
+            $(anchor).trigger('strike');
+            break
           }
-          lastSpyTarget = current;
-          current = null;
         }
+
         return this;
       },
 
       // 开始监听
       start: function() {
-        $scrollParent.on('scroll.spy', _.bind(_.throttle(this.update, 100), this));
+        _$container.off('scroll.spy').on('scroll.spy', _.bind(_.throttle(this.update, 100), this));
         this.update();
         return this;
       },
 
       // 停止监听
       stop: function() {
-        $scrollParent.off('scroll.spy');
+        _$container.off('scroll.spy');
         return this;
       },
-    };
-
-    // 初始化并返回
-    return spy.init(callback);
+    }
   }
 
-  $.fn.scrollspy = function(callback) {
-    return Scrollspy(this, callback);
+  $.fn.scrollspy = function(options) {
+    options = isObject(options) ? options : {}
+    options.container = this
+    return Scrollspy(options);
   }
 
   global.Scrollspy = Scrollspy;
