@@ -300,102 +300,76 @@ LazyScript.load('lazyload', function(global){
 
 ```js
 /*!
- * version: 0.1.0
+ * version: 0.2.0
  * 内部开发, 滚动监听功能
  */
 
 /**
- * 示例
- * 简要说明:
- * "滚动监听"功能可分解为三个部分:
- *   1. 监听指定容器的滚动事件
- *   2. 监听(容器滚动时)指定元素的位置变化
- *   3. 将监听结果反馈给指定的接收元素
- * 基于以上划分, scrollspy 相应的将滚动监听分解为了三个函数
- * 三个函数可连写
+ * 监测滚动容器中哪个元素为『当前元素』，并反馈给对应的锚点链接
  */
 LazyScript.load('scrollspy', function(global){
-  /**
-   * 连写示例
-   * 如下, 一个最常用的应用场景:
-   * 当 window 滚动时, 监听所有带有 id 的元素, 并反馈至 .nav 下的锚点链接
-   */
-  var spyer = $(window).scrollspy()
-      .spy('[id]', 60)
-      .feedback('.nav a');
+  var spy = Scrollspy({
+    /**
+     * 指定滚动容器，可省略;
+     * 类型: window 对象/合法的 CSS 选择器/HTML 元素/jQuery 对象;
+     */
+    container: window,
+    
+    /**
+     * 指定检测线位置，可省略;
+     * 类型: 数字或字符串;
+     * 说明：将『检测线』想象成一条虚拟的线，位于容器内，位置固定。当容器滚动时，
+     *   - 距离检测线最近的元素会被判定为『当前元素』。
+     * 指定方式：offset 允许两种指定方式：
+     *   - 1.百分比方式，如 '20%'（检测线距容器顶部为 20% 容器高）
+     *   - 2.px 方式，如 '60px' 或 '60'（检测线距容器顶部为 60px）
+     */
+    offset: '20%',
+    
+    /**
+     * 指定判定方式，可省略；
+     * 类型: 'near' 或 'strike' 二选一;
+     * 说明：指定 'near' 时，元素中心线距离检测线最近的元素被判定为『当前元素』，
+     *   - 指定 'strike' 时，只有当检测线穿过该元素时才会被判定为『当前元素』
+     */
+    method: 'near',
+  })
+  .feedback(
+    /**
+     * 指定锚点链接，不可省略；
+     * 类型: 合法的 CSS 选择器/HTML 元素/jQuery 对象;
+     * 说明：可以直接指定锚点链接元素集，也可以指定一个上级元素，
+     *   - Scrollspy 会自动筛选出其中的锚点链接
+     */
+    targets = '.sidebar',
+    
+    /**
+     * 指定锚点链接激活方式，可省略；
+     * 类型: 合法的 CSS 类名/函数;
+     * 说明：如果指定的是 CSS 类名，则在链接激活时添加该类，非激活时取消该类；
+     *   - 而通过指定一个函数，你可以有更多的控制，
+     *   - 比如链接激活时给链接的上级元素（而不是链接本身）添加类；
+     *   - 函数接收两个参数，第一个是当前要激活的链接元素，第二个是默认的类名
+     */
+    active = 'is-active',
+    
+    /**
+     * 指定锚点链接取消激活的方式，可省略；
+     * 类型：同 「active」
+     */
+    deactive = function(target, cls) {
+      $(target).removeClass(cls)
+    }
+  );
   
   /**
-   * 1. 监听容器滚动
-   * 
-   * @param selector 容器选择器; 必需; 
-   *   类型: 字符串/HTML元素/jQuery对象/window;
-   *   默认值: 无;
-   *   说明: 指定被监听容器;
-   *
-   * @param callback 滚动回调函数; 非必需;
-   *   类型: 函数/null;
-   *   默认值: 无;
-   *   说明: 用于指定滚动事件回调函数, this 指向滚动容器, 无参数;
-   *
-   * @return 
-   *   类型: Scrollspy 对象, 一个 Scrollspy 对象包含六个方法:
-   *   - init 初始化, 初始化后会失去所有监视的元素和绑定的反馈接收元素; 
-   *      init 还可以用于设置 callback
-   *   - spy (详细说明见下方)
-   *   - feedback (详细说明见下方)
-   *   - update 刷新
-   *   - stop 停止监听
-   *   - start 开始监听
+   * jQuery 调用方式
+   * 各参数类型同上。
+   * 其中，options 的 'container' 项不必指定，因为会被 $() 中的 container 覆盖
    */
-  var spyer = $(selector).scrollspy(callback);
-
-  /**
-   * 2. 监听指定元素的位置
-   * 
-   * @param selector 监听元素选择器; 必需;
-   *   类型: 字符串/HTML元素/jQuery对象;
-   *   默认值: 无;
-   *   说明: 指定被监听元素;
-   *
-   * @param threshold 阈值(偏移值); 非必需;
-   *   类型: 数字;
-   *   默认值: 0;
-   *   说明: 辅助判断元素是否已进入窗口;
-   *
-   * @param callback 监听回调函数; 非必需;
-   *   类型: 字符串/HTML元素/jQuery对象/window;
-   *   默认值: 无;
-   *   说明: 当一个被监听元素被判断已进入窗口时调用该函数;
-   *     接受两个参数, 第一个是当前进入的元素, 第二个是之前进入的元素(可能是 null)
-   *
-   * @return
-   *   类型: Scrollspy 对象;
-   */
-  spyer.spy(selector, threshold, callback);
-
-  /**
-   * 3. 反馈监听结果到指定元素
-   * 
-   * @param selector 反馈接收元素选择器; 必需;
-   *   类型:字符串/HTML元素/jQuery对象; 
-   *   默认值:无;
-   *
-   * @param isRelated 元素关联方法; 非必需;
-   *   - 用于判断一个被监听元素与一个反馈接收元素是否相关;
-   *   - 接受两个参数, 第一个是被监听元素, 第二个是反馈接收元素;
-   *   类型:函数/null; 
-   *   默认值:(见源码); 
-   *
-   * @param callback 反馈回调函数; 非必需;
-   *   类型: 函数/null;
-   *   默认值: (见源码);
-   *   说明: 当一个被监听元素被判断进入窗口时自动调用该函数; 函数接受两个参数,
-   *     第一个是当前接收反馈的元素, 第二个是之前已接收反馈的元素(可能是 null)
-   *
-   * @return 
-   *   类型: Scrollspy 对象;
-   */
-  spyer.feedback(selector, isRelated, callback);
+  var spy = $(container)
+  						.scrollspy(options)
+  						.feedback(targets, active, deactive)
 });
 
 ```
