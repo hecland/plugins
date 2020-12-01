@@ -1,5 +1,5 @@
 /**
- * Version 0.2.0
+ * Version 0.2.1
  * 滚动监听
  */
 LazyScript.load('jquery', 'underscore', function(global){
@@ -76,12 +76,12 @@ LazyScript.load('jquery', 'underscore', function(global){
 
     // 从 options 提取检测线偏移值，以及确定值的单位
     if (options.offset && !isNaN(parseFloat(options.offset))) {
-      _sensor.offset = parseFloat(options.offset)
+      var offset = parseFloat(options.offset);
       if (/%$/.test(options.offset)) {
-        _sensor.pos /= 100
+        _sensor.pos = offset/100
         _sensor.unit = '%'
       } else {
-        _sensor.pos = Math.round(_sensor.pos)
+        _sensor.pos = Math.round(offset)
         _sensor.unit = 'px'
       }
     }

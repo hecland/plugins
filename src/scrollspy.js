@@ -76,7 +76,7 @@ LazyScript.load('jquery', 'underscore', function(global){
 
     // 从 options 提取检测线偏移值，以及确定值的单位
     if (options.offset && !isNaN(parseFloat(options.offset))) {
-      const offset = parseFloat(options.offset)
+      var offset = parseFloat(options.offset);
       if (/%$/.test(options.offset)) {
         _sensor.pos = offset/100
         _sensor.unit = '%'
